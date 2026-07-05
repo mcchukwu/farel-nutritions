@@ -1,2 +1,2 @@
-<h1>Welcome to Farel nutritions!</h1>
+<h1>Welcome to Farel Nutritions!</h1>
 <p>This is the home page.</p>
