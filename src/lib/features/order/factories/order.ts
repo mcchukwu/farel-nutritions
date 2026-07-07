@@ -1,4 +1,4 @@
-import type { Order } from '$lib/types/order';
+import type { Order } from '$lib/features/order/types/order';
 
 export function createEmptyOrder(): Order {
   return {
