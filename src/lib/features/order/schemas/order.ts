@@ -11,18 +11,24 @@ export const orderSchema = z.object({
     lastName: z
       .string()
       .trim()
-      .min(2)
+      .min(2, 'Last name must be at least 2 characters.')
       .max(50),
 
     email: z
-      .string()
+      .email({
+        message: "Please enter a valid email address."
+      })
       .trim()
-      .toLowerCase()
-      .email('Please enter a valid email address.'),
+      .toLowerCase(),
 
     phone: z
       .string()
       .trim()
+      .regex(
+        /^\+234[789][01]\d{8}$/,
+        "Please enter a valid Nigerian phone number."
+      )
+
   }),
 
   address: z.object({
@@ -30,11 +36,7 @@ export const orderSchema = z.object({
 
     lga: z.string().min(1, 'Please select an LGA.'),
 
-    city: z.string().trim().min(2),
-
-    area: z.string().trim().min(2),
-
-    streetAddress: z.string().trim().min(5),
+    streetAddress: z.string().trim().min(5, 'Please enter a street address.'),
 
     landmark: z.string().trim().optional(),
 

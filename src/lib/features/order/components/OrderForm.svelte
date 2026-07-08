@@ -2,7 +2,7 @@
 	import { PRODUCT } from '$lib/features/order/constants/product';
 	import { STATES } from '$lib/features/order/data/nigeriaStates';
 	import { createEmptyOrder } from '$lib/features/order/factories/order';
-	import { normalizeNigerianPhone } from '$lib/features/order/utils/phone';
+	import { orderSchema } from '../schemas/order';
 
 	let order = $state(createEmptyOrder());
 
@@ -26,17 +26,27 @@
 		}
 	}
 
+	/* prepareForSubmit prepares the order for submission
+  and sets the showConfirmation state to true, if there are no errors. */
 	function prepareForSubmit() {
 		errors = {};
 
-		order.customer.phone = normalizeNigerianPhone(order.customer.phone);
+		const result = orderSchema.safeParse(order);
+
+		if (!result.success) {
+			for (const issue of result.error.issues) {
+				errors[issue.path.join('.')] = issue.message;
+			}
+
+			return;
+		}
 
 		showConfirmation = true;
 	}
 </script>
 
 <form
-	class="space-y-10 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm"
+	class="space-y-10 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
 	onsubmit={(event) => {
 		event.preventDefault();
 		prepareForSubmit();
@@ -57,7 +67,7 @@
 
 		<div class="grid gap-6 md:grid-cols-2">
 			<div>
-				<label class={labelClass}> First Name </label>
+				<label class={labelClass} for="customer-first-name"> First Name </label>
 
 				<input
 					bind:value={order.customer.firstName}
@@ -74,7 +84,7 @@
 			</div>
 
 			<div>
-				<label class={labelClass}> Last Name </label>
+				<label class={labelClass} for="customer-last-name"> Last Name </label>
 
 				<input
 					bind:value={order.customer.lastName}
@@ -91,7 +101,7 @@
 			</div>
 
 			<div>
-				<label class={labelClass}> Phone Number </label>
+				<label class={labelClass} for="customer-phone"> Phone Number </label>
 
 				<input
 					bind:value={order.customer.phone}
@@ -109,7 +119,7 @@
 			</div>
 
 			<div>
-				<label class={labelClass}> Email Address </label>
+				<label class={labelClass} for="customer-email"> Email Address </label>
 
 				<input
 					bind:value={order.customer.email}
@@ -134,7 +144,7 @@
 
 		<div class="grid gap-6 md:grid-cols-2">
 			<div>
-				<label class={labelClass}> State </label>
+				<label class={labelClass} for="address-state"> State </label>
 
 				<select bind:value={order.address.state} class={inputClass}>
 					<option value=""> Select State </option>
@@ -145,32 +155,53 @@
 						</option>
 					{/each}
 				</select>
+
+				{#if errors['address.state']}
+					<p class="mt-1 text-sm text-red-600">
+						{errors['address.state']}
+					</p>
+				{/if}
 			</div>
 
 			<div>
-				<label class={labelClass}> LGA </label>
+				<label class={labelClass} for="address-lga"> LGA </label>
 
 				<select bind:value={order.address.lga} class={inputClass}>
 					<option value=""> Select LGA </option>
 				</select>
+
+				{#if errors['address.lga']}
+					<p class="mt-1 text-sm text-red-600">
+						{errors['address.lga']}
+					</p>
+				{/if}
 			</div>
 
 			<div class="md:col-span-2">
-				<label class={labelClass}> Street Address </label>
+				<label class={labelClass} for="address-street-address"> Street Address </label>
 
 				<input bind:value={order.address.streetAddress} class={inputClass} />
+
+				{#if errors['address.streetAddress']}
+					<p class="mt-1 text-sm text-red-600">
+						{errors['address.streetAddress']}
+					</p>
+				{/if}
 			</div>
 
 			<div class="md:col-span-2">
-				<label class={labelClass}> Nearest Landmark </label>
+				<label class={labelClass} for="address-landmark"> Nearest Landmark </label>
 
 				<input bind:value={order.address.landmark} class={inputClass} />
 			</div>
 
 			<div class="md:col-span-2">
-				<label class={labelClass}> Delivery Instructions </label>
+				<label class={labelClass} for="address-delivery-notes"> Delivery Instructions </label>
 
-				<textarea bind:value={order.address.deliveryNotes} rows="4" class={inputClass} />
+				<textarea
+					bind:value={order.address.deliveryNotes}
+					rows="4"
+					class={`${inputClass} resize-none`}></textarea>
 			</div>
 		</div>
 	</fieldset>
@@ -180,22 +211,16 @@
 	<fieldset class="space-y-6">
 		<legend class="text-xl font-semibold text-slate-900"> Product </legend>
 
-		<div class="rounded-xl border border-slate-200 p-6">
+		<div class="rounded-xl border border-slate-200 py-6 px-4">
 			<div class="flex items-start justify-between gap-4">
 				<div>
 					<h3 class="text-lg font-semibold">
 						{PRODUCT.name}
 					</h3>
-
-					<p class="mt-1 text-slate-600">Unit Price</p>
-
-					<p class="text-xl font-bold text-indigo-600">
-						₦{PRODUCT.unitPrice.toLocaleString()}
-					</p>
 				</div>
 
-				<div class="text-right">
-					<label class="mb-2 block text-sm font-medium"> Quantity </label>
+				<div>
+					<label class="mb-2 block text-sm font-medium" for="product-quantity"> Quantity </label>
 
 					<div class="inline-flex overflow-hidden rounded-lg border">
 						<button type="button" class="px-4 py-2 hover:bg-slate-100" onclick={decreaseQuantity}>
@@ -212,6 +237,43 @@
 					</div>
 				</div>
 			</div>
+
+			<hr class="my-6" />
+
+			<div class="space-y-3">
+				<div class="flex justify-between">
+					<span>Quantity</span>
+
+					<strong>
+						{order.product.quantity}
+					</strong>
+				</div>
+
+				<div class="flex justify-between">
+					<span>Unit Price</span>
+
+					<strong>
+						₦{PRODUCT.unitPrice.toLocaleString()}
+					</strong>
+				</div>
+
+				<div class="flex justify-between border-t pt-4 text-xl font-bold">
+					<span>Total</span>
+
+					<span>
+						₦{totalPrice.toLocaleString()}
+					</span>
+				</div>
+			</div>
 		</div>
 	</fieldset>
+	<div class="flex justify-end">
+		<button
+			type="submit"
+			disabled={submitting}
+			class="rounded-full bg-green-600 px-8 py-4 w-full font-semibold text-white transition hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+		>
+			{submitting ? 'Submitting...' : 'Place Order'}
+		</button>
+	</div>
 </form>
