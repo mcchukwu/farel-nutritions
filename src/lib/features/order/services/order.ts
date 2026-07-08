@@ -3,10 +3,8 @@ export interface SubmitOrderResponse {
   message: string;
 }
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/REPLACE_WITH_YOUR_DEPLOYMENT_ID/exec';
-
 export async function submitOrder(order: unknown): Promise<SubmitOrderResponse> {
-  const response = await fetch(GOOGLE_SCRIPT_URL, {
+  const response = await fetch('/api/orders', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -14,9 +12,11 @@ export async function submitOrder(order: unknown): Promise<SubmitOrderResponse> 
     body: JSON.stringify(order)
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    throw new Error('Unable to submit order.');
+    throw new Error(data.message);
   }
 
-  return await response.json();
+  return data;
 }

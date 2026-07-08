@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { PRODUCT } from '$lib/features/order/constants/product';
-	import { STATES } from '$lib/features/order/data/nigeriaStates';
 	import { createEmptyOrder } from '$lib/features/order/factories/order';
 	import { orderSchema } from '../schemas/order';
 	import { submitOrder } from '../services/order';
 	import { normalizeNigerianPhone } from '../utils/phone';
+	import nigeria from '$lib/features/order/data/nigeria.json';
+	import type { NigerianState } from '$lib/features/order/types/nigeria';
 
 	let order = $state(createEmptyOrder());
 
@@ -19,11 +20,28 @@
 		'w-full rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-green-50';
 	const labelClass = 'mb-2 block text-sm font-medium text-slate-700';
 
+	const states = nigeria as NigerianState[];
+	const stateNames = $derived(states.map((state) => state.state));
+	const selectedState = $derived(states.find((state) => state.state === order.address.state));
+	const availableLgas = $derived(selectedState?.lgas ?? []);
+
+	// reset the lga field when the state changes
+	let previousState = '';
+	$effect(() => {
+		if (order.address.state && order.address.state !== previousState) {
+			order.address.lga = '';
+			previousState = order.address.state;
+		}
+	});
+
 	const totalPrice = $derived(PRODUCT.unitPrice * order.product.quantity);
 
+	// increaseQuantity increases the quantity of the order by 1.
 	function increaseQuantity() {
 		order.product.quantity++;
 	}
+
+	// decreaseQuantity decreases the quantity of the order by 1.
 	function decreaseQuantity() {
 		if (order.product.quantity > 1) {
 			order.product.quantity--;
@@ -63,7 +81,11 @@
 				}
 			};
 
-			await submitOrder(payload);
+			const result = await submitOrder(payload);
+
+			if (!result.success) {
+				throw new Error(result.message);
+			}
 
 			order = createEmptyOrder();
 
@@ -71,6 +93,8 @@
 
 			orderSuccessful = true;
 		} catch (error) {
+			showConfirmation = false;
+
 			submissionError = 'Unable to submit your order. Please try again.';
 
 			console.error(error);
@@ -204,7 +228,7 @@
 					<select bind:value={order.address.state} class={inputClass}>
 						<option value=""> Select State </option>
 
-						{#each STATES as state (state)}
+						{#each stateNames as state (state)}
 							<option value={state}>
 								{state}
 							</option>
@@ -221,8 +245,16 @@
 				<div>
 					<label class={labelClass} for="address-lga"> LGA </label>
 
-					<select bind:value={order.address.lga} class={inputClass}>
-						<option value=""> Select LGA </option>
+					<select class={inputClass} bind:value={order.address.lga} disabled={!order.address.state}>
+						<option value="">
+							{order.address.state ? 'Select LGA' : 'Select a state first'}
+						</option>
+
+						{#each availableLgas as lga (lga)}
+							<option value={lga}>
+								{lga}
+							</option>
+						{/each}
 					</select>
 
 					{#if errors['address.lga']}
