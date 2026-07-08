@@ -1,13 +1,13 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { PUBLIC_GOOGLE_SCRIPT_URL } from '$env/static/public';
+import { GOOGLE_SCRIPT_URL } from '$env/static/private';
 
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
     const payload = await request.json();
 
-    const response = await fetch(PUBLIC_GOOGLE_SCRIPT_URL, {
+    const response = await fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
       redirect: 'follow',
       headers: {
