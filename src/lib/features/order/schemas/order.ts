@@ -14,8 +14,11 @@ export const orderSchema = z.object({
     lastName: nameField('Last name'),
     email: z
       .string()
-      .transform((value) => value.trim().toLowerCase())
-      .pipe(z.email({ message: 'Please enter a valid email address.' })),
+      .trim()
+      .toLowerCase()
+      .optional()
+      .transform((value) => (value === '' ? undefined : value))
+      .pipe(z.email({ message: 'Please enter a valid email address.' }).optional()),
     phone: z
       .string()
       .transform((val) => val.replace(/\D/g, ''))

@@ -6,16 +6,32 @@
 	import { normalizeNigerianPhone } from '../utils/phone';
 	import nigeria from '$lib/features/order/data/nigeria.json';
 	import type { NigerianState } from '$lib/features/order/types/nigeria';
+	import { fade, scale } from 'svelte/transition';
+	import { tick } from 'svelte';
 
 	let order = $state(createEmptyOrder());
 
-	let submitting = $state(false);
+	let isSubmitting = $state(false);
 	let showConfirmation = $state(false);
 	let orderSuccessful = $state(false);
 	let submissionError = $state('');
 
 	let errors = $state<Record<string, string>>({});
+	/* Maps the field names in the order schema to the IDs of the corresponding form fields */
+	const fieldMap: Record<string, string> = {
+		'customer.firstName': 'firstName',
+		'customer.lastName': 'lastName',
+		'customer.email': 'email',
+		'customer.phone': 'phone',
 
+		'address.state': 'state',
+		'address.lga': 'lga',
+		'address.streetAddress': 'streetAddress',
+		'address.landmark': 'landmark',
+		'address.deliveryNotes': 'deliveryNotes'
+	};
+
+	/* Reusable CSS classes */
 	const inputClass =
 		'w-full rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-green-50';
 	const labelClass = 'mb-2 block text-sm font-medium text-slate-700';
@@ -25,7 +41,7 @@
 	const selectedState = $derived(states.find((state) => state.state === order.address.state));
 	const availableLgas = $derived(selectedState?.lgas ?? []);
 
-	// reset the lga field when the state changes
+	/* Reset the lga field when the state changes */
 	let previousState = '';
 	$effect(() => {
 		if (order.address.state && order.address.state !== previousState) {
@@ -36,21 +52,21 @@
 
 	const totalPrice = $derived(PRODUCT.unitPrice * order.product.quantity);
 
-	// increaseQuantity increases the quantity of the order by 1.
+	/* IncreaseQuantity increases the quantity of the order by 1 */
 	function increaseQuantity() {
 		order.product.quantity++;
 	}
 
-	// decreaseQuantity decreases the quantity of the order by 1.
+	/* DecreaseQuantity decreases the quantity of the order by 1 */
 	function decreaseQuantity() {
 		if (order.product.quantity > 1) {
 			order.product.quantity--;
 		}
 	}
 
-	/* prepareForSubmit prepares the order for submission
+	/* PrepareForSubmit prepares the order for submission
   and sets the showConfirmation state to true, if there are no errors. */
-	function prepareForSubmit() {
+	async function prepareForSubmit() {
 		errors = {};
 
 		const result = orderSchema.safeParse(order);
@@ -60,15 +76,36 @@
 				errors[issue.path.join('.')] = issue.message;
 			}
 
+			await tick();
+
+			const firstError = Object.keys(errors)[0];
+
+			if (firstError) {
+				const id = fieldMap[firstError];
+
+				if (id) {
+					const element = document.getElementById(id);
+
+					element?.scrollIntoView({
+						behavior: 'smooth',
+						block: 'center'
+					});
+
+					element?.focus();
+				}
+			}
+
 			return;
 		}
 
 		showConfirmation = true;
 	}
 
-	/* submitOrder submits the order to the Google Script */
+	/* SubmitOrder submits the order to the Google Script */
 	async function placeOrder() {
-		submitting = true;
+		if (isSubmitting) return;
+
+		isSubmitting = true;
 
 		try {
 			const payload = {
@@ -99,13 +136,17 @@
 
 			console.error(error);
 		} finally {
-			submitting = false;
+			isSubmitting = false;
 		}
 	}
 </script>
 
 {#if orderSuccessful}
-	<section class="rounded-2xl border border-green-300 bg-green-50 p-10 text-center">
+	<section
+		in:scale={{ duration: 250 }}
+		out:fade
+		class="rounded-2xl border border-green-300 bg-green-50 p-10 text-center"
+	>
 		<div class="mx-auto max-w-lg">
 			<h2 class="text-3xl font-bold text-green-700">Order Received 🎉</h2>
 
@@ -114,7 +155,7 @@
 			</p>
 
 			<button
-				class="mt-8 rounded-lg bg-green-600 px-6 py-3 font-semibold text-white"
+				class="mt-8 rounded-full bg-green-600 px-6 py-3 font-semibold text-white"
 				onclick={() => {
 					orderSuccessful = false;
 				}}
@@ -146,9 +187,10 @@
 
 			<div class="grid gap-6 md:grid-cols-2">
 				<div>
-					<label class={labelClass} for="customer-first-name"> First Name </label>
+					<label class={labelClass} for="firstName"> First Name </label>
 
 					<input
+						id="firstName"
 						bind:value={order.customer.firstName}
 						class={inputClass}
 						type="text"
@@ -163,9 +205,10 @@
 				</div>
 
 				<div>
-					<label class={labelClass} for="customer-last-name"> Last Name </label>
+					<label class={labelClass} for="lastName"> Last Name </label>
 
 					<input
+						id="lastName"
 						bind:value={order.customer.lastName}
 						class={inputClass}
 						type="text"
@@ -180,9 +223,10 @@
 				</div>
 
 				<div>
-					<label class={labelClass} for="customer-phone"> Phone Number </label>
+					<label class={labelClass} for="phone"> Phone Number </label>
 
 					<input
+						id="phone"
 						bind:value={order.customer.phone}
 						class={inputClass}
 						type="tel"
@@ -198,9 +242,10 @@
 				</div>
 
 				<div>
-					<label class={labelClass} for="customer-email"> Email Address </label>
+					<label class={labelClass} for="email"> Email (optional)</label>
 
 					<input
+						id="email"
 						bind:value={order.customer.email}
 						class={inputClass}
 						type="email"
@@ -223,9 +268,9 @@
 
 			<div class="grid gap-6 md:grid-cols-2">
 				<div>
-					<label class={labelClass} for="address-state"> State </label>
+					<label class={labelClass} for="state"> State </label>
 
-					<select bind:value={order.address.state} class={inputClass}>
+					<select id="state" bind:value={order.address.state} class={inputClass}>
 						<option value=""> Select State </option>
 
 						{#each stateNames as state (state)}
@@ -243,9 +288,14 @@
 				</div>
 
 				<div>
-					<label class={labelClass} for="address-lga"> LGA </label>
+					<label class={labelClass} for="lga"> LGA </label>
 
-					<select class={inputClass} bind:value={order.address.lga} disabled={!order.address.state}>
+					<select
+						id="lga"
+						bind:value={order.address.lga}
+						class={inputClass}
+						disabled={!order.address.state}
+					>
 						<option value="">
 							{order.address.state ? 'Select LGA' : 'Select a state first'}
 						</option>
@@ -265,9 +315,9 @@
 				</div>
 
 				<div class="md:col-span-2">
-					<label class={labelClass} for="address-street-address"> Street Address </label>
+					<label class={labelClass} for="streetAddress"> Street Address </label>
 
-					<input bind:value={order.address.streetAddress} class={inputClass} />
+					<input id="streetAddress" bind:value={order.address.streetAddress} class={inputClass} />
 
 					{#if errors['address.streetAddress']}
 						<p class="mt-1 text-sm text-red-600">
@@ -277,17 +327,16 @@
 				</div>
 
 				<div class="md:col-span-2">
-					<label class={labelClass} for="address-landmark"> Nearest Landmark (optional) </label>
+					<label class={labelClass} for="landmark"> Nearest Landmark (optional) </label>
 
-					<input bind:value={order.address.landmark} class={inputClass} />
+					<input id="landmark" bind:value={order.address.landmark} class={inputClass} />
 				</div>
 
 				<div class="md:col-span-2">
-					<label class={labelClass} for="address-delivery-notes">
-						Delivery Instructions (optional)
-					</label>
+					<label class={labelClass} for="deliveryNotes"> Delivery Instructions (optional) </label>
 
 					<textarea
+						id="deliveryNotes"
 						bind:value={order.address.deliveryNotes}
 						rows="4"
 						class={`${inputClass} resize-none`}></textarea>
@@ -301,17 +350,17 @@
 			<legend class="text-xl font-semibold text-slate-900"> Product </legend>
 
 			<div class="rounded-xl border border-slate-200 py-6 px-4">
-				<div class="flex items-start justify-between gap-4">
+				<div class="">
 					<div>
-						<h3 class="text-lg font-semibold">
+						<h3 class="text-lg font-semibold mb-4">
 							{PRODUCT.name}
 						</h3>
 					</div>
 
 					<div>
-						<label class="mb-2 block text-sm font-medium" for="product-quantity"> Quantity </label>
+						<label class="mb-2 block text-sm font-medium" for="productQuantity"> Quantity </label>
 
-						<div class="inline-flex overflow-hidden rounded-lg border">
+						<div class="inline-flex overflow-hidden flex-wrap rounded-lg border">
 							<button type="button" class="px-4 py-2 hover:bg-slate-100" onclick={decreaseQuantity}>
 								−
 							</button>
@@ -330,7 +379,7 @@
 				<hr class="my-6" />
 
 				<div class="space-y-3">
-					<div class="flex justify-between">
+					<div class="flex justify-between flex-wrap">
 						<span>Quantity</span>
 
 						<strong>
@@ -338,7 +387,7 @@
 						</strong>
 					</div>
 
-					<div class="flex justify-between">
+					<div class="flex justify-between flex-wrap">
 						<span>Unit Price</span>
 
 						<strong>
@@ -346,7 +395,7 @@
 						</strong>
 					</div>
 
-					<div class="flex justify-between border-t pt-4 text-xl font-bold">
+					<div class="flex justify-between flex-wrap border-t pt-4 text-lg font-bold">
 						<span>Total</span>
 
 						<span>
@@ -366,10 +415,10 @@
 		<div class="flex justify-end">
 			<button
 				type="submit"
-				disabled={submitting}
+				disabled={isSubmitting}
 				class="rounded-full bg-green-600 px-8 py-4 w-full font-semibold text-white transition hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
 			>
-				{submitting ? 'Submitting...' : 'Place Order'}
+				{isSubmitting ? 'Submitting...' : 'Place Order'}
 			</button>
 		</div>
 	</form>
@@ -398,7 +447,7 @@
 					</strong>
 				</p>
 
-				<div class="mt-8 flex flex-col-reverse md:flex-row gap-4 w-full">
+				<div class="mt-8 flex flex-col-reverse md:flex-row gap-2 w-full">
 					<button
 						type="button"
 						class="rounded-full border w-full px-5 py-3"
@@ -412,10 +461,10 @@
 					<button
 						type="button"
 						class="rounded-full w-full bg-green-600 px-5 py-3 text-white"
-						disabled={submitting}
+						disabled={isSubmitting}
 						onclick={placeOrder}
 					>
-						{submitting ? 'Submitting...' : 'Confirm Order'}
+						{isSubmitting ? 'Submitting...' : 'Confirm Order'}
 					</button>
 				</div>
 			</div>
