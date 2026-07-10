@@ -16,7 +16,29 @@ export const POST: RequestHandler = async ({ request }) => {
       body: JSON.stringify(payload)
     });
 
-    const result = await response.json();
+    const text = await response.text();
+
+    let result: {
+      success: boolean;
+      message: string;
+    };
+
+    try {
+      result = JSON.parse(text);
+    } catch {
+      console.error('Expected JSON but received: ');
+      console.error(text);
+
+      return json(
+        {
+          success: false,
+          message: 'Invald response from Google Script.'
+        },
+        {
+          status: 502
+        }
+      );
+    }
 
     return json(result, {
       status: result.success ? 200 : 400

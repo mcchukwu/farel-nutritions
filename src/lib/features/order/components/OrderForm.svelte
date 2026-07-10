@@ -8,6 +8,7 @@
 	import type { NigerianState } from '$lib/features/order/types/nigeria';
 	import { fade, scale } from 'svelte/transition';
 	import { tick } from 'svelte';
+	import Spinner from '$lib/components/spinner.svelte';
 
 	let order = $state(createEmptyOrder());
 
@@ -17,6 +18,7 @@
 	let submissionError = $state('');
 
 	let errors = $state<Record<string, string>>({});
+
 	/* Maps the field names in the order schema to the IDs of the corresponding form fields */
 	const fieldMap: Record<string, string> = {
 		'customer.firstName': 'firstName',
@@ -64,8 +66,7 @@
 		}
 	}
 
-	/* PrepareForSubmit prepares the order for submission
-  and sets the showConfirmation state to true, if there are no errors. */
+	/* PrepareForSubmit prepares the order for submission and sets the showConfirmation state to true, if there are no errors. */
 	async function prepareForSubmit() {
 		errors = {};
 
@@ -155,7 +156,7 @@
 			</p>
 
 			<button
-				class="mt-8 rounded-full bg-green-600 px-6 py-3 font-semibold text-white"
+				class="mt-8 rounded-full bg-green-600 px-6 py-3 font-semibold text-white transition hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
 				onclick={() => {
 					orderSuccessful = false;
 				}}
@@ -166,6 +167,7 @@
 	</section>
 {:else}
 	<form
+		in:fade={{ duration: 250 }}
 		class="space-y-10 rounded-2xl border border-slate-200 bg-white px-4 py-6 shadow-sm"
 		onsubmit={(event) => {
 			event.preventDefault();
@@ -416,12 +418,16 @@
 			<button
 				type="submit"
 				disabled={isSubmitting}
-				class="rounded-full bg-green-600 px-8 py-4 w-full font-semibold text-white transition hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+				class="relative flex items-center justify-center rounded-full bg-green-600 px-8 py-4 w-full font-semibold text-white transition hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
 			>
-				{isSubmitting ? 'Submitting...' : 'Place Order'}
+				{#if isSubmitting}
+					<Spinner class="absolute" />
+				{/if}
+				<span class:invisible={isSubmitting}>Place order</span>
 			</button>
 		</div>
 	</form>
+
 	{#if showConfirmation}
 		<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
 			<div class="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
@@ -450,7 +456,7 @@
 				<div class="mt-8 flex flex-col-reverse md:flex-row gap-2 w-full">
 					<button
 						type="button"
-						class="rounded-full border w-full px-5 py-3"
+						class="relative flex items-center justify-center rounded-full border w-full px-5 py-3 transition hover:bg-slate-100 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
 						onclick={() => {
 							showConfirmation = false;
 						}}
@@ -460,11 +466,14 @@
 
 					<button
 						type="button"
-						class="rounded-full w-full bg-green-600 px-5 py-3 text-white"
+						class="relative flex items-center justify-center rounded-full w-full bg-green-600 px-5 py-3 text-white transition hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
 						disabled={isSubmitting}
 						onclick={placeOrder}
 					>
-						{isSubmitting ? 'Submitting...' : 'Confirm Order'}
+						{#if isSubmitting}
+							<Spinner class="absolute" />
+						{/if}
+						<span class:invisible={isSubmitting}>Confirm order</span>
 					</button>
 				</div>
 			</div>
