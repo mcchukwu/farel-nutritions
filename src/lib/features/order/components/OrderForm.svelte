@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { PRODUCT } from '$lib/features/order/constants/product';
 	import { createEmptyOrder } from '$lib/features/order/factories/order';
-	import { orderSchema } from '../schemas/order';
-	import { submitOrder } from '../services/order';
-	import { normalizeNigerianPhone } from '../utils/phone';
+	import { orderSchema } from '$lib/features/order/schemas/order';
+	import { submitOrder } from '$lib/features/order/services/order';
+	import { normalizeNigerianPhone } from '$lib/features/order/utils/phone';
 	import nigeria from '$lib/features/order/data/nigeria.json';
 	import type { NigerianState } from '$lib/features/order/types/nigeria';
 	import { fade, scale } from 'svelte/transition';
 	import { tick } from 'svelte';
-	import Spinner from '$lib/components/spinner.svelte';
+	import Spinner from '$lib/components/Spinner.svelte';
 
 	let order = $state(createEmptyOrder());
 
@@ -143,6 +143,7 @@
 </script>
 
 {#if orderSuccessful}
+	<!-- Order Successful -->
 	<section
 		in:scale={{ duration: 250 }}
 		out:fade
@@ -166,8 +167,9 @@
 		</div>
 	</section>
 {:else}
+	<!-- Order Form -->
 	<form
-		in:fade={{ duration: 250 }}
+		in:fade={{ duration: 300 }}
 		class="space-y-10 rounded-2xl border border-slate-200 bg-white px-4 py-6 shadow-sm"
 		onsubmit={(event) => {
 			event.preventDefault();
@@ -183,7 +185,6 @@
 		</header>
 
 		<!-- CUSTOMER INFORMATION -->
-
 		<fieldset class="space-y-6">
 			<legend class="text-xl font-semibold text-slate-900"> Customer Information </legend>
 
@@ -264,7 +265,6 @@
 		</fieldset>
 
 		<!-- ADDRESS -->
-
 		<fieldset class="space-y-6">
 			<legend class="text-xl font-semibold text-slate-900"> Delivery Address </legend>
 
@@ -347,7 +347,6 @@
 		</fieldset>
 
 		<!-- PRODUCT -->
-
 		<fieldset class="space-y-6">
 			<legend class="text-xl font-semibold text-slate-900"> Product </legend>
 
@@ -428,6 +427,7 @@
 		</div>
 	</form>
 
+	<!-- Confirmation Modal -->
 	{#if showConfirmation}
 		<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
 			<div class="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
