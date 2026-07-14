@@ -2,7 +2,7 @@
 </script>
 
 <footer>
-	<div class="border-t border-slate-200 bg-slate-50 mt-20">
+	<div class="bg-slate-50 mt-20">
 		<div class="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-10">
 			<div class="grid gap-10 md:grid-cols-3">
 				<!-- Brand -->
