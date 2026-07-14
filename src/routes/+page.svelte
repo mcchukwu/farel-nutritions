@@ -3,9 +3,9 @@
 	import Hero from '$lib/components/Hero.svelte';
 </script>
 
-<div class="mx-auto max-w-3xl px-6">
+<div class="mx-auto max-w-7xl px-6">
 	<Hero />
-	<div class="mt-10">
+	<div id="order" class="max-w-3xl mx-auto mt-10">
 		<OrderForm />
 	</div>
 </div>

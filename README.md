@@ -2,7 +2,6 @@
 
 A simple website for a particular product I am selling
 
-
 ## Developing
 
 Once you've installed dependencies with `npm install` , start a development server:

@@ -359,7 +359,7 @@
 					</div>
 
 					<div>
-						<label class="mb-2 block text-sm font-medium" for="productQuantity"> Quantity </label>
+						<p class="mb-2 block text-sm font-medium">Quantity</p>
 
 						<div class="inline-flex overflow-hidden flex-wrap rounded-lg border">
 							<button type="button" class="px-4 py-2 hover:bg-slate-100" onclick={decreaseQuantity}>
