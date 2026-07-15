@@ -9,6 +9,7 @@
 	import { fade, scale } from 'svelte/transition';
 	import { tick } from 'svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
+	import { calculatePricing } from '$lib/features/order/utils/pricing';
 
 	let order = $state(createEmptyOrder());
 
@@ -52,7 +53,23 @@
 		}
 	});
 
-	const totalPrice = $derived(PRODUCT.unitPrice * order.product.quantity);
+	const pricing = $derived(calculatePricing(Number(order.product.quantity) || 1));
+
+	const savingsMessage = $derived.by(() => {
+		const quantity = order.product.quantity;
+
+		if (quantity <= 1) {
+			return {
+				title: '💚 Save More When You Buy More',
+				description: 'Increase the quantity to unlock instant savings.'
+			};
+		}
+
+		return {
+			title: `🎉 You're saving ₦${pricing.discount.toLocaleString()}!`,
+			description: `Your total discount for ${quantity} item${quantity > 1 ? 's' : ''} is ₦${pricing.discount.toLocaleString()}.`
+		};
+	});
 
 	/* IncreaseQuantity increases the quantity of the order by 1 */
 	function increaseQuantity() {
@@ -102,7 +119,7 @@
 		showConfirmation = true;
 	}
 
-	/* SubmitOrder submits the order to the Google Script */
+	/* placeOrder submits the order to the Google Script */
 	async function placeOrder() {
 		if (isSubmitting) return;
 
@@ -111,6 +128,8 @@
 		try {
 			const payload = {
 				...order,
+
+				pricing,
 
 				customer: {
 					...order.customer,
@@ -130,6 +149,15 @@
 			showConfirmation = false;
 
 			orderSuccessful = true;
+
+			await tick();
+
+			// Scroll to the success message
+			const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+			document.getElementById('order-success')?.scrollIntoView({
+				behavior: motionQuery.matches ? 'auto' : 'smooth',
+				block: 'center'
+			});
 		} catch (error) {
 			showConfirmation = false;
 
@@ -145,6 +173,7 @@
 {#if orderSuccessful}
 	<!-- Order Successful -->
 	<section
+		id="order-success"
 		in:scale={{ duration: 250 }}
 		out:fade
 		class="rounded-2xl border border-green-300 bg-green-50 p-10 text-center"
@@ -351,11 +380,52 @@
 			<legend class="text-xl font-semibold text-slate-900"> Product </legend>
 
 			<div class="rounded-xl border border-slate-200 py-6 px-4">
-				<div class="">
+				<div>
 					<div>
-						<h3 class="text-lg font-semibold mb-4">
+						<h3 class="mb-4 text-lg font-semibold">
 							{PRODUCT.name}
 						</h3>
+
+						<div
+							class="mb-6 rounded-xl border border-green-200 bg-green-50 p-4 transition-all duration-300"
+						>
+							<p class="font-semibold text-green-800">
+								{savingsMessage.title}
+							</p>
+
+							<p class="mt-1 text-sm text-green-700">
+								{savingsMessage.description}
+							</p>
+
+							<div class="mt-4 flex flex-wrap gap-2 text-center text-xs">
+								<div
+									class:selected={order.product.quantity === 2}
+									class="rounded-lg flex-1 border border-green-200 bg-white p-2"
+								>
+									<p class="font-semibold">2 Items</p>
+
+									<p class="text-green-700">Save ₦2,000</p>
+								</div>
+
+								<div
+									class:selected={order.product.quantity === 3}
+									class="rounded-lg flex-1 border border-green-200 bg-white p-2"
+								>
+									<p class="font-semibold">3 Items</p>
+
+									<p class="text-green-700">Save ₦5,000</p>
+								</div>
+
+								<div
+									class:selected={order.product.quantity >= 4}
+									class="rounded-lg flex-1 border border-green-200 bg-white p-2"
+								>
+									<p class="font-semibold">4+ Items</p>
+
+									<p class="text-green-700">Save ₦8,000+</p>
+								</div>
+							</div>
+						</div>
 					</div>
 
 					<div>
@@ -392,15 +462,31 @@
 						<span>Unit Price</span>
 
 						<strong>
-							₦{PRODUCT.unitPrice.toLocaleString()}
+							₦{pricing.unitPrice.toLocaleString()}
+						</strong>
+					</div>
+
+					<div class="flex justify-between flex-wrap">
+						<span>Subtotal</span>
+
+						<strong>
+							₦{pricing.subtotal.toLocaleString()}
+						</strong>
+					</div>
+
+					<div class="flex justify-between flex-wrap">
+						<span class="text-green-700">Discount</span>
+
+						<strong class="text-green-700">
+							−₦{pricing.discount.toLocaleString()}
 						</strong>
 					</div>
 
 					<div class="flex justify-between flex-wrap border-t pt-4 text-lg font-bold">
 						<span>Total</span>
 
-						<span>
-							₦{totalPrice.toLocaleString()}
+						<span class="text-green-700">
+							₦{pricing.total.toLocaleString()}
 						</span>
 					</div>
 				</div>
@@ -446,12 +532,19 @@
 						{PRODUCT.name}
 					</strong>
 
-					for
+					for a total of
 
-					<strong>
-						₦{totalPrice.toLocaleString()}
-					</strong>
+					<strong class="text-green-700">
+						₦{pricing.total.toLocaleString()}
+					</strong>.
 				</p>
+
+				{#if pricing.discount > 0}
+					<p class="mt-2 text-sm text-green-700">
+						This order includes a discount of
+						<strong>₦{pricing.discount.toLocaleString()}</strong>.
+					</p>
+				{/if}
 
 				<div class="mt-8 flex flex-col-reverse md:flex-row gap-2 w-full">
 					<button

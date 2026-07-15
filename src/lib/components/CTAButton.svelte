@@ -24,7 +24,6 @@
 			behavior: motionQuery.matches ? 'auto' : 'smooth',
 			block: 'start'
 		});
-		console.log('scrolled to', targetId);
 	}
 </script>
 

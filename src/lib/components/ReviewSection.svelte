@@ -29,12 +29,12 @@
 			</p>
 		</div>
 
-		<div class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+		<div class="mt-10 max-w-4xl mx-auto grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 			{#each reviews as review (review.alt)}
 				<enhanced:img
 					src={review.src}
 					alt={review.alt}
-					class="mx-auto h-auto w-full max-w-sm rounded-xl object-contain"
+					class="mx-auto h-auto w-full max-w-xs rounded-2xl object-contain"
 					sizes="(max-width: 640px) 100vw,
 			       (max-width: 1024px) 50vw,
 			       33vw"

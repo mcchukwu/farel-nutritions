@@ -16,7 +16,7 @@
 
 		<div class="flex flex-wrap gap-4 mt-6">
 			{#each problems as problem (problem)}
-				<div class="flex items-center gap-4 rounded-xl bg-white p-4 shadow-sm">
+				<div class="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm">
 					<div class="h-3 w-3 shrink-0 rounded-full bg-green-500"></div>
 
 					<p class="text-lg text-slate-700">
@@ -26,7 +26,7 @@
 			{/each}
 		</div>
 
-		<div class="mt-10 rounded-xl bg-green-600 p-4 text-white">
+		<div class="mt-10 rounded-2xl bg-green-600 p-4 text-white">
 			<h3 class="text-3xl font-bold">There's a Better Way</h3>
 
 			<p class="mt-4 max-w-prose text-lg leading-8">

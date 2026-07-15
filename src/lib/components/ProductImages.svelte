@@ -22,13 +22,15 @@
 
 <section>
 	<div class="mx-auto max-w-3xl py-10">
-		{#each images as image (image.alt)}
-			<enhanced:img
-				src={image.src}
-				alt={image.alt}
-				class="block h-auto w-full object-contain"
-				sizes="(max-width: 768px) 100vw, 768px"
-			/>
-		{/each}
+		<div class="rounded-2xl overflow-hidden">
+			{#each images as image (image.alt)}
+				<enhanced:img
+					src={image.src}
+					alt={image.alt}
+					class="block h-auto w-full object-contain"
+					sizes="(max-width: 768px) 100vw, 768px"
+				/>
+			{/each}
+		</div>
 	</div>
 </section>
