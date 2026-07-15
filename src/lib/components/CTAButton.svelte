@@ -3,27 +3,28 @@
 		href?: string;
 		label: string;
 	}
+
 	let { href = '#order', label }: Props = $props();
 
-	const isInPageAnchor = $derived(href?.startsWith('#') ?? false);
+	const isInPageAnchor = $derived(href.startsWith('#'));
 
 	function handleClick(event: MouseEvent) {
 		if (!isInPageAnchor) return;
 
-		const targetId = href.slice(1);
-		if (!targetId) return;
-
-		const target = document.getElementById(targetId);
+		const target = document.querySelector<HTMLElement>(href);
 		if (!target) return;
 
 		event.preventDefault();
 
-		const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 		target.scrollIntoView({
-			behavior: motionQuery.matches ? 'auto' : 'smooth',
+			behavior: prefersReducedMotion ? 'auto' : 'smooth',
 			block: 'start'
 		});
+
+		// Keep the URL in sync without causing another jump
+		history.replaceState(null, '', href);
 	}
 </script>
 

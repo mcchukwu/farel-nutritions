@@ -4,12 +4,12 @@
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import AnnouncementBanner from '$lib/components/AnnouncementBanner.svelte';
+	import WhatsappButton from '$lib/components/WhatsappButton.svelte';
 
 	let { children } = $props();
 </script>
 
 <svelte:head>
-	<title>Farel Nutritions</title>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
@@ -23,4 +23,6 @@
 	</main>
 
 	<Footer />
+
+	<WhatsappButton />
 </div>

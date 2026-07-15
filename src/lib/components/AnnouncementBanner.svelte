@@ -11,7 +11,9 @@
 		<div
 			class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 text-sm font-medium"
 		>
-			<p class="text-center flex-1">🎉 Buy More & Save • Pay on Delivery Available Nationwide</p>
+			<p class="text-center flex-1">
+				🎉 Save More When You Buy 2+ Packs • 🚚 Pay on Delivery Nationwide
+			</p>
 
 			<button
 				type="button"

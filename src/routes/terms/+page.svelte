@@ -1,9 +1,9 @@
 <svelte:head>
-	<title>Terms & Conditions | Farel Nutrition</title>
+	<title>Terms & Conditions | Farel Nutritions</title>
 
 	<meta
 		name="description"
-		content="Read the terms and conditions governing purchases from Farel Nutrition."
+		content="Read the terms and conditions governing purchases from Farel Nutritions."
 	/>
 </svelte:head>
 
@@ -78,7 +78,7 @@
 				<h2 class="text-2xl font-bold text-slate-900">Limitation of Liability</h2>
 
 				<p class="text-slate-600">
-					Farel Nutrition shall not be liable for indirect, incidental or consequential damages
+					Farel Nutritions shall not be liable for indirect, incidental or consequential damages
 					arising from the use or misuse of our products or services, except where required by
 					applicable law.
 				</p>
