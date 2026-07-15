@@ -7,10 +7,10 @@
 			<div class="grid gap-10 md:grid-cols-3">
 				<!-- Brand -->
 				<div>
-					<h3 class="text-2xl font-black text-green-700">Farel Nutritions</h3>
+					<h3 class="text-2xl font-black text-green-700">Farel Mart</h3>
 
 					<p class="mt-4 text-sm leading-6 text-slate-600">
-						Connecting you with the best nutrition products for your health and aesthetics.
+						Connecting you with the best products for your health and aesthetics.
 					</p>
 				</div>
 
@@ -43,7 +43,7 @@
 					class="flex flex-col items-center justify-between gap-4 text-center text-sm text-slate-500 md:flex-row"
 				>
 					<p>
-						© {new Date().getFullYear()} Farel Nutritions. All rights reserved.
+						© {new Date().getFullYear()} Farel Ventures. All rights reserved.
 					</p>
 
 					<div class="flex items-center gap-6">

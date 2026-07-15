@@ -3,7 +3,7 @@
 	import { fly } from 'svelte/transition';
 
 	const whatsappUrl =
-		'https://wa.me/2348070973712?text=Hi%20Farel%20Nutritions%2C%20I%27d%20like%20to%20know%20more%20about%20the%20BREYLEE%20Teeth%20Whitening%20Powder.';
+		'https://wa.me/2348070973712?text=Hi%20Farel%2C%20I%27d%20like%20to%20know%20more%20about%20the%20BREYLEE%20Teeth%20Whitening%20Powder.';
 
 	let showBubble = $state(false);
 

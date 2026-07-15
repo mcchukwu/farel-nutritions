@@ -7,7 +7,7 @@
 </script>
 
 <svelte:head>
-	<title>Farel Nutrition | Premium Teeth Whitening Powder</title>
+	<title>Farel Mart | Premium Teeth Whitening Powder</title>
 
 	<meta
 		name="description"

@@ -1,9 +1,9 @@
 <svelte:head>
-	<title>Privacy Policy | Farel Nutritions</title>
+	<title>Privacy Policy | Farel Mart</title>
 
 	<meta
 		name="description"
-		content="Learn how Farel Nutritions collects, uses and protects your personal information."
+		content="Learn how Farel Mart collects, uses and protects your personal information."
 	/>
 </svelte:head>
 
@@ -22,8 +22,8 @@
 				<h2 class="text-2xl font-bold text-slate-900">Introduction</h2>
 
 				<p class="text-slate-600">
-					Farel Nutritions respects your privacy. This Privacy Policy explains how we collect, use
-					and safeguard the information you provide when placing an order through our website.
+					Farel Mart respects your privacy. This Privacy Policy explains how we collect, use and
+					safeguard the information you provide when placing an order through our website.
 				</p>
 			</section>
 
