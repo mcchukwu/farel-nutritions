@@ -3,6 +3,7 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import AnnouncementBanner from '$lib/components/AnnouncementBanner.svelte';
 
 	let { children } = $props();
 </script>
@@ -13,6 +14,8 @@
 </svelte:head>
 
 <div class="flex min-h-screen flex-col">
+	<AnnouncementBanner />
+
 	<Header />
 
 	<main class="flex-1">
