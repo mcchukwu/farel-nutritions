@@ -1,6 +1,6 @@
-# Farel Nutrition
+# Farel Mart
 
-A simple website for a particular product I am selling
+A website for an ecommerce business
 
 ## Developing
 
